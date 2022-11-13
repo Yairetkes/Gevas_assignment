@@ -39,7 +39,7 @@ def getFaceLandmarks(image_file):
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh()
     
-    image = cv2.imread("photos/blue2.jpg")
+    image = cv2.imread(image_file)
     
     # Convert the BGR image to RGB and process it with MediaPipe Face Detection.
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -267,11 +267,11 @@ def changeEyeColor(img_file, eye_color, test=False):
     )
 
 def main():
-    pic_file = "photos/blue4.jpg"
+    pic_file = "photos/blue3.jpg"
     
     image = cv2.imread(pic_file)
 
-    destination_color = "green"
+    destination_color = "brown"
 
     new_image = changeEyeColor(pic_file, destination_color, True)
     plt.figure()
@@ -280,7 +280,8 @@ def main():
     # plt.subplot(122)
     # plt.imshow(new_image[:, :, ::-1])
 
-    output_file_name = "output_changed_eyes_colors_2_"+ destination_color + ".jpg"
+    output_file_name = "output_changed_2_" + destination_color + ".jpg"
+    # output_file_name = "output.jpg"
     cv2.imwrite(output_file_name, new_image)
     showImage(new_image, "new image")
 
