@@ -146,7 +146,7 @@ def filterOutCircles(circles, landmarks: list[Landmark]):
     return [left_eye, right_eye]
 
 # creates a histogram of the hues in the eye region
-def createHistogramOfColorsInEyeRegion(img, circles, eye_radius, test=False):
+def createHistogramOfColorsInEyeRegion(img, circles, eye_radius, test=False, radius_constant = 0):
     # Convert image to gray-scale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # convert image to float so to create a mask
@@ -154,7 +154,7 @@ def createHistogramOfColorsInEyeRegion(img, circles, eye_radius, test=False):
     for circle in circles:
         center = (circle[0], circle[1])
         # get all pixels inside eye radius
-        cv2.circle(gray, center, int(eye_radius + eye_radius / 2), 2, -1)
+        cv2.circle(gray, center, int(eye_radius + eye_radius / 2) - radius_constant, 2, -1)
     if test:
         showImage(gray)
     eye_pixels = np.where(gray == 2)
@@ -231,7 +231,7 @@ def landmarks_2_coordinates(landmarks: mp.framework.formats.landmark_pb2.Normali
     
     return new_landmarks
 
-def changeEyeColor(img_file, eye_color, test=False):
+def changeEyeColor(img_file, eye_color, test=False, radius_constant = 0):
     # grab the landmark points
     landmarks = getFaceLandmarks(img_file)
     points: list[Landmark] = landmarks_2_coordinates(landmarks, img_file)
@@ -260,20 +260,24 @@ def changeEyeColor(img_file, eye_color, test=False):
         raise e
 
     histogram, eye_pixels, eye_pixel_hue, h, s, v = createHistogramOfColorsInEyeRegion(
-        image, circles, eye_radius, test
+        image, circles, eye_radius, test, radius_constant
     )
     return changeHueOfHistogram(
         histogram, eye_pixels, eye_pixel_hue, h, s, v, eye_color, test
     )
 
 def main():
-    pic_file = "photos/blue3.jpg"
+    pic_file = "photos/blue1.jpg"
     
     image = cv2.imread(pic_file)
 
+    radius_const = 4 # this constant should improve iris segmentation results. 4 seem to work good
+    
+    # TODO: implementing Raz's idea - remove space between circle and eye arc, using the landmark in between 2 upper eye used landmarks.
+
     destination_color = "brown"
 
-    new_image = changeEyeColor(pic_file, destination_color, True)
+    new_image = changeEyeColor(pic_file, destination_color, True, radius_const)
     plt.figure()
     # plt.subplot(121)
     # plt.imshow(image[:, :, ::-1])
