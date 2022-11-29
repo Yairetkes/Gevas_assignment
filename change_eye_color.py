@@ -275,7 +275,7 @@ def main():
     
     # TODO: implementing Raz's idea - remove space between circle and eye arc, using the landmark in between 2 upper eye used landmarks.
 
-    destination_color = "brown"
+    destination_color = "green"
 
     new_image = changeEyeColor(pic_file, destination_color, True, radius_const)
     plt.figure()
