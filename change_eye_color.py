@@ -1,5 +1,4 @@
 import cv2
-# import dlib
 import numpy as np
 import argparse
 import matplotlib.pyplot as plt
@@ -86,7 +85,6 @@ def houghTransformCircleDetector(image, eye_radius, eye_distance):
     min_circle_distance = eye_distance / 2
     # Convert to gray-scale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # img = cv2.medianBlur(gray, 5)
     # Apply hough transform on the images
     circles = cv2.HoughCircles(
         gray,
@@ -206,10 +204,9 @@ def changeHueOfHistogram(
         eye_pixel_hue[eye_pixel_hue == bin] = destinationHue[i]
     # update hue of eye pixel region
     h[eye_pixels] = eye_pixel_hue
-    # recreate hsv image with updated hues, covert back to BGR and display
+    # recreate hsv image with updated hues, convert back to BGR and display
     newImage = cv2.merge([h, s, v])
     newImage = cv2.cvtColor(newImage, cv2.COLOR_HSV2BGR)
-    # showImage(newImage)
     return newImage
 
 def landmarks_2_coordinates(landmarks: mp.framework.formats.landmark_pb2.NormalizedLandmarkList, image_file) -> list[Landmark]:
@@ -237,11 +234,8 @@ def changeEyeColor(img_file, eye_color, test=False, radius_constant = 0):
     points: list[Landmark] = landmarks_2_coordinates(landmarks, img_file)
     
     # from landmark points get the eye measurements
-    # TODO - choose the right radius and distance, maybe with different landmarks so it will be generalised to other photos.
     eye_radius = np.uint16((points[158].x - points[160].x) / 2) 
     eye_distance = np.uint16(points[385].x - points[158].x)
-    # eye_radius = np.uint16((points[158].x - points[160].x) / 2 - 2) 
-    # eye_distance = np.uint16(points[385].x - points[158].x + 11)
 
     image = cv2.imread(img_file)
 
@@ -251,7 +245,6 @@ def changeEyeColor(img_file, eye_color, test=False, radius_constant = 0):
         print("eye_radius", eye_radius, "eye_distance", eye_distance)
 
     circles = houghTransformCircleDetector(image, eye_radius, eye_distance)
-    # drawCircles(img.copy(), circles, eye_radius)
 
     try:
         circles = filterOutCircles(circles, points)
@@ -273,16 +266,11 @@ def main():
 
     radius_const = 4 # this constant should improve iris segmentation results. 4 seem to work good
     
-    # TODO: implementing Raz's idea - remove space between circle and eye arc, using the landmark in between 2 upper eye used landmarks.
-
     destination_color = "green"
 
     new_image = changeEyeColor(pic_file, destination_color, True, radius_const)
     plt.figure()
-    # plt.subplot(121)
-    # plt.imshow(image[:, :, ::-1])
-    # plt.subplot(122)
-    # plt.imshow(new_image[:, :, ::-1])
+
 
     output_file_name = "output_changed_2_" + destination_color + ".jpg"
     # output_file_name = "output.jpg"
