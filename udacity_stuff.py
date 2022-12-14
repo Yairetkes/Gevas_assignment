@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import random
+import math
 
 def turn_to_green(img, height, width):    
     for i in range(height):
@@ -69,24 +70,33 @@ def noisy(noise_typ,image):
         noisy = image + image * gauss
         return noisy
 
+
+def find_and_draw_lines(img):
+    # this function Finds lines in a binary image using the standard Hough transform
+    edges1 = canny_detection(img)
+
+    lines = cv.HoughLines(edges1, 1, np.pi / 180, 150, None, 0, 0)
+
+    # Draw the lines
+    if lines is not None:
+        for i in range(0, len(lines)):
+            rho = lines[i][0][0]
+            theta = lines[i][0][1]
+            a = math.cos(theta)
+            b = math.sin(theta)
+            x0 = a * rho
+            y0 = b * rho
+            pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
+            pt2 = (int(x0 - 1000*(-b)), int(y0 - 1000*(a)))
+            cv.line(img, pt1, pt2, (0,0,255), 3, cv.LINE_AA)
+
+    return img
+
 def main():
-    img = cv.imread("photos\my_photo.jpg")
-
-    #gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
-
-    # noise_img = noisy("s&p", img)
-    # showImage(noise_img, "noise_img")
-    # fixed_img = cv.medianBlur(noise_img, 3)
-    # showImage(fixed_img, "fixed_img")
-    # fixed_img = cv.medianBlur(fixed_img, 3)
-    # showImage(fixed_img, "fixed_img")
-    # fixed_img = cv.medianBlur(fixed_img, 3)
-    # showImage(fixed_img, "fixed_img")
-    # fixed_img = cv.medianBlur(fixed_img, 3)
-    # showImage(fixed_img, "fixed_img")
-
-    edges = canny_detection(img)
-    showImage(edges)
+    img = cv.imread("photos\lines_img.jpg")
+    
+    img = find_and_draw_lines(img)
+    showImage(img)
 
 if __name__ == "__main__":
     main()
